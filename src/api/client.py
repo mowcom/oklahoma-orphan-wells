@@ -5,6 +5,10 @@ import time
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+from io import BytesIO
+import zipfile
+import csv
+import pandas as pd
 
 from ..config.settings import (
     BASE_URL, DEFAULT_HEADERS, DEFAULT_TIMEOUT, 
@@ -105,36 +109,28 @@ class WellDatabaseClient:
         return response.json()
     
     def get_production_data(self, well_ids: List[str], start_date: str, 
-                           end_date: str, page_size: int = 1000) -> Dict:
-        """Get production data for specified wells and date range"""
+                           end_date: str, page_size: int = 1000, page_offset: int = 0) -> Dict:
+        """Get production data for specified wells and date range.
+
+        Uses API v2 search contract with Filters, targeting InfinityIds and ReportDate window.
+        """
         
         data = {
-            'WellIds': well_ids,
-            'StartDate': start_date,
-            'EndDate': end_date,
+            'Filters': {
+                'InfinityIds': well_ids,
+                'ReportDate': {
+                    'Min': start_date,
+                    'Max': end_date
+                }
+            },
             'PageSize': page_size,
-            'PageOffset': 0
+            'PageOffset': page_offset
         }
         
         response = self._make_request('POST', '/production/search', data, timeout=60)
         return response.json()
     
-    def export_production_data(self, well_ids: List[str], fields: List[str] = None, 
-                              export_format: str = 'csv') -> bytes:
-        """Export production data as CSV/Excel file"""
-        
-        data = {
-            'ExportFormat': export_format,
-            'Filters': {
-                'InfinityIds': well_ids
-            }
-        }
-        
-        if fields:
-            data['Fields'] = fields
-        
-        response = self._make_request('POST', '/production/export', data, timeout=EXPORT_TIMEOUT)
-        return response.content
+    # Note: export endpoints removed from client to keep single-source search method
     
     def get_well_by_api(self, api_number: str) -> Optional[Dict]:
         """Find a specific well by API number"""

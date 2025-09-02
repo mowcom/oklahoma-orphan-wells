@@ -41,11 +41,13 @@ def basic_api_example():
     api_number = "35-039-21577-0000"
     well = client.get_well_by_api(api_number)
     
-    if well:
-        print(f"✅ Found: {well['wellName']} ({well['apI10']})")
-        print(f"   Status: {well['wellStatus']}")
-        print(f"   Operator: {well.get('currentOperator', 'Unknown')}")
-        print(f"   County: {well.get('county', 'Unknown')}")
+    target_well = well
+    if target_well:
+        api10 = well.get('api10') or well.get('apI10') or 'Unknown'
+        print(f"✅ Found: {target_well.get('wellName','Unknown')} ({api10})")
+        print(f"   Status: {target_well.get('status', target_well.get('wellStatus','Unknown'))}")
+        print(f"   Operator: {target_well.get('operator', target_well.get('currentOperator', 'Unknown'))}")
+        print(f"   County: {target_well.get('county', 'Unknown')}")
     else:
         print(f"❌ Well not found: {api_number}")
     
@@ -66,10 +68,10 @@ def basic_api_example():
         print(f"✅ Found {total:,} orphaned wells in Oklahoma")
         print(f"   Showing first {len(wells)} wells:")
         
-        for i, well in enumerate(wells, 1):
-            print(f"   {i}. {well['wellName']} ({well['apI10']})")
-            print(f"      Status: {well['wellStatus']}")
-            print(f"      County: {well.get('county', 'Unknown')}")
+        for i, ow in enumerate(wells, 1):
+            print(f"   {i}. {ow.get('wellName','Unknown')} ({ow.get('api10', ow.get('apI10','Unknown'))})")
+            print(f"      Status: {ow.get('status', ow.get('wellStatus','Unknown'))}")
+            print(f"      County: {ow.get('county', 'Unknown')}")
             
     except Exception as e:
         print(f"❌ Error finding orphaned wells: {e}")
@@ -78,22 +80,24 @@ def basic_api_example():
     print(f"\n🏆 EXAMPLE 3: Reactivation analysis")
     print("-" * 30)
     
-    if well:  # Use the well we found in Example 1
+    if target_well:  # Use the well we found in Example 1
         try:
             # Get production data
-            print(f"   Getting production data for {well['wellName']}...")
+            print(f"   Getting production data for {target_well.get('wellName','Unknown')}...")
             production_data = client.get_production_data(
-                [well['wellId']], 
-                '2000-01-01', 
-                '2024-12-31'
+                [target_well['wellId']], 
+                '1990-01-01', 
+                '2024-12-31',
+                page_size=1000
             )
-            
             production_records = production_data.get('data', [])
-            print(f"   ✅ Found {len(production_records)} production records")
+            # Check for any non-zero gas
+            nonzero = [r for r in production_records if (r.get('wellGas') or r.get('totalGas') or 0) > 0]
+            print(f"   ✅ /production/search returned {len(production_records)} rows; non-zero: {len(nonzero)}")
             
             # Analyze for reactivation potential
             analyzer = ReactivationAnalyzer()
-            analysis = analyzer.analyze_well(production_records, well)
+            analysis = analyzer.analyze_well(production_records, target_well)
             
             print(f"   🎯 REACTIVATION ASSESSMENT:")
             print(f"      Category: {analysis['category_name']}")

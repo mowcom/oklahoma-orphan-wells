@@ -52,27 +52,22 @@ search_data = {
 **Data Volume**: Can be very large (millions of records)  
 
 ```python
-production_data = {
-    'WellIds': ['ce812c6a-915b-4f15-96bd-e65e17b87b66'],
-    'StartDate': '2010-01-01',
-    'EndDate': '2024-12-31'
+# API v2 search uses Filters with InfinityIds and ReportDate window
+search_body = {
+    'Filters': {
+        'InfinityIds': ['ce812c6a-915b-4f15-96bd-e65e17b87b66'],
+        'ReportDate': {'Min': '2010-01-01', 'Max': '2024-12-31'}
+    },
+    'PageSize': 1000,
+    'PageOffset': 0
 }
 ```
 
 ### **3. Production Export (`/production/export`)**
-**Purpose**: Bulk export of production data  
-**When to Use**: Large datasets, CSV downloads, comprehensive analysis  
-**Response Speed**: Slow (60-300 seconds)  
-**Data Volume**: Unlimited (returns ZIP file)  
+Deprecated in app logic — keep for reference. Prefer `/production/search` for all programmatic access.
 
 ```python
-export_data = {
-    "ExportFormat": "csv",
-    "Filters": {
-        "InfinityIds": ["ce812c6a-915b-4f15-96bd-e65e17b87b66"]
-    },
-    "Fields": ["reportDate", "wellGas", "totalGas", "wellOil"]
-}
+# Prefer /production/search for app logic. (Export notes retained for historical context only.)
 ```
 
 ### **4. Production Aggregate (`/production/aggregate`)**

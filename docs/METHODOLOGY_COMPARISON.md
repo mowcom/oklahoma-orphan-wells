@@ -108,7 +108,7 @@ for api in api_numbers:
         well_ids.append(well['wellId'])
 
 # 4. Bulk export production data
-production_data = client.export_production_data(well_ids)
+# Deprecated: export-based method removed. Use /production/search with Filters instead.
 ```
 
 ---

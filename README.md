@@ -27,19 +27,23 @@ This repository contains a complete framework for analyzing Oklahoma orphaned we
 
 ## 🚀 Quick Start
 
-### **1. Installation**
+### **1. Installation (conda)**
 ```bash
 git clone <repository-url>
 cd wellDatabaseAPI
 
-# Install dependencies
-pip install httpx pandas numpy
+# Create and activate the environment
+conda env create -f environment.yml
+conda activate chamber-wda
 ```
 
 ### **2. Configuration**
-```python
-# Update your API key in src/config/settings.py
-API_KEY = "your-welldatabase-api-key"
+```bash
+# Set your API key for this shell
+export WBD_API_KEY=YOUR_API_KEY
+
+# Or add to your shell profile (~/.zshrc or ~/.bashrc)
+echo 'export WBD_API_KEY=YOUR_API_KEY' >> ~/.zshrc && source ~/.zshrc
 ```
 
 ### **3. Run Sample Analysis**
@@ -47,8 +51,26 @@ API_KEY = "your-welldatabase-api-key"
 # Generate sample reactivation report
 python reactivation/sample_well_report_35039215770000.py
 
-# Test API connectivity
-python examples/test_api_connection.py
+# Test API connectivity (uses conda env)
+python examples/test_api_status.py
+
+# Run Phase 0 (loads .env automatically via Makefile)
+make run-phase0-50 | cat
+```
+
+### **4. Fetch Production by API Number (Search-only method)**
+```bash
+python - <<'PY'
+from src.api.client import WellDatabaseClient
+
+client = WellDatabaseClient()
+well = client.get_well_by_api('35-039-21577-0000')  # dashes OK
+assert well, 'Well not found'
+
+resp = client.get_production_data([well['WellId' if 'WellId' in well else 'wellId']], '1990-01-01', '2024-12-31', page_size=1000)
+rows = resp.get('data', [])
+print('rows:', len(rows), 'nonzero:', sum(1 for r in rows if (r.get('wellGas') or r.get('totalGas') or 0) > 0))
+PY
 ```
 
 ---
@@ -155,6 +177,10 @@ for well in orphan_wells['data'][:5]:
 
 ### **📖 Core Documentation**
 - **[WellDatabase API Guide](docs/WELLDATABASE_API_GUIDE.md)**: Complete developer guide
+- **[Data Sources](docs/data-sources.md)**: OCC/WB/GIS inputs and contracts
+- **[Business Logic](docs/business-logic.md)**: Phases 0–2 rules and scoring
+- **[Cursor Agent](cursor-agent.md)**: Agent mission and pipeline commands
+- **Run Phase 0 Pipeline**: `make run-phase0` or `python -m src.pipelines.phase0_desktop`
 - **[Sample Report](reactivation/sample_well_report_35039215770000.py)**: Full analysis example
 - **[Phase 0 Workflow](PHASE_0_ORPHAN_REACTIVATION_WORKFLOW.md)**: Business methodology
 

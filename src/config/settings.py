@@ -3,12 +3,12 @@
 import os
 
 # API Configuration
-API_KEY = "6ipnW2sRTSqVPmsUnUDjDKrlMjVtk7iiyccMcQGztMdeHn7D2RSsQIiS6z6sGTPO"
-BASE_URL = "https://app.welldatabase.com/api/v2"
+API_KEY = os.getenv("WBD_API_KEY", "")
+BASE_URL = os.getenv("WBD_BASE_URL", "https://app.welldatabase.com/api/v2")
 
 # Request Configuration
 DEFAULT_TIMEOUT = 30
-EXPORT_TIMEOUT = 180
+EXPORT_TIMEOUT = 300
 RETRY_ATTEMPTS = 3
 RETRY_BACKOFF_FACTOR = 2
 

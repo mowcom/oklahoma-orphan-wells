@@ -10,7 +10,7 @@ Built comprehensive targeting system for Oklahoma orphaned well reactivation wit
 
 ### **Key Metrics from Analysis:**
 - **Total Orphaned Wells Available**: 554,298 in Oklahoma
-- **Status Codes Targeted**: 21319, 21333, 21381, 2942, 42 (Orphaned - Shut In, etc.)
+- **Statuses Targeted**: "Orphaned - Shut In", "Orphaned - Completed - Not Active" (names, not numeric IDs)
 - **Analysis Framework**: 95-point scoring system with 5 reactivation categories
 - **Target Outcome**: ~100 ranked wells for Phase 1 field surveys
 
@@ -109,19 +109,22 @@ ROI Timeline: 3-5 years to recover $80k investment
 
 ### **Step 1: Oklahoma Orphan Identification**
 ```python
-# Search criteria
-orphan_status_codes = [21319, 21333, 21381, 2942, 42]
+# Search criteria (string status names are reliable)
+orphan_statuses = [
+    "Orphaned - Shut In",
+    "Orphaned - Completed - Not Active"
+]
 geographic_focus = "Oklahoma (State ID: 35)"
-total_available = 554,298 wells
 ```
 
 ### **Step 2: Production History Screening**
 ```python
-# Filter criteria  
-minimum_production_months = 6
-minimum_peak_production = 1,000 MCF/month
-recent_activity_window = 24 months
-analysis_timeframe = "2000-2024"
+# Retrieve production using WB v2 /production/search with Filters
+from src.api.client import WellDatabaseClient
+client = WellDatabaseClient()
+well = client.get_well_by_api("35-039-21577-0000")
+resp = client.get_production_data([well['wellId']], '1990-01-01', '2024-12-31', page_size=1000)
+rows = resp.get('data', [])
 ```
 
 ### **Step 3: Reactivation Scoring**
