@@ -10,4 +10,5 @@ All notable changes to this repository.
 - Added `--top` to Phase 0 to generate top-N reports; updated Makefile targets to pass `--top`.
 - Cleaned documentation to reflect current method; marked export usage as deprecated (reference only).
 - Added OCC prefilter in Phase 0 (status/type screen; identity/location hygiene) producing `occ_prefiltered.csv` and summary JSON.
+- Consolidated Phase 0 documentation to `docs/PHASE_0.md` and removed outdated root doc.
 

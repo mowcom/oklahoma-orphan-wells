@@ -182,7 +182,7 @@ for well in orphan_wells['data'][:5]:
 - **[Cursor Agent](cursor-agent.md)**: Agent mission and pipeline commands
 - **Run Phase 0 Pipeline**: `make run-phase0` or `python -m src.pipelines.phase0_desktop`
 - **[Sample Report](reactivation/sample_well_report_35039215770000.py)**: Full analysis example
-- **[Phase 0 Workflow](PHASE_0_ORPHAN_REACTIVATION_WORKFLOW.md)**: Business methodology
+- **[Phase 0 Workflow](docs/PHASE_0.md)**: Business methodology
 
 ### **🔍 Key Discoveries**
 1. **Real Orphan Count**: Uses proper status filtering (not 554k "Unknown" wells)

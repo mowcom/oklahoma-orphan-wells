@@ -31,7 +31,7 @@
 - **[Data Sources](docs/data-sources.md)**: OCC/WB/GIS inputs and contracts
 - **[Business Logic](docs/business-logic.md)**: Phases 0–2 rules and scoring
 - **[Cursor Agent](cursor-agent.md)**: Agent mission and make targets
-- **[Phase 0 Business Workflow](PHASE_0_ORPHAN_REACTIVATION_WORKFLOW.md)**: $80k business model
+- **[Phase 0 Business Workflow](docs/PHASE_0.md)**: $80k business model
 - **[Sample Report](reactivation/sample_well_report_35039215770000.py)**: Full analysis example
 - **[README.md](README.md)**: Quick start and overview guide
 
@@ -139,7 +139,7 @@ NEWCOMB 18-3 (API 35-039-21577-0000):
 ### **Technical Documentation**
 - **API Issues**: See [WELLDATABASE_API_GUIDE.md](docs/WELLDATABASE_API_GUIDE.md)
 - **Analysis Methods**: Review [reactivation.py](src/analysis/reactivation.py)
-- **Business Logic**: Check [PHASE_0_WORKFLOW.md](PHASE_0_ORPHAN_REACTIVATION_WORKFLOW.md)
+- **Business Logic**: Check [PHASE_0.md](docs/PHASE_0.md)
 
 ### **External Resources**
 - **WellDatabase Support**: [support.welldatabase.com](https://support.welldatabase.com)
