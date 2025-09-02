@@ -36,6 +36,10 @@ run-phase0-50:
 	@echo "[Phase 0] Running OCC→WB pipeline (50-well sample)"
 	@$(MAKE) conda-run CMD='python -m src.pipelines.phase0_desktop --limit 50 --offset 1000 --start 1990-01-01 --end 2024-12-31 --force-refresh --top 5' || true
 
+run-phase0-100:
+	@echo "[Phase 0] Running OCC→WB pipeline (100-well sample; top 1%)"
+	@$(MAKE) conda-run CMD='python -m src.pipelines.phase0_desktop --limit 100 --start 1990-01-01 --end 2024-12-31 --top-percent 1' || true
+
 phase1:
 	@echo "[Phase 1] field packet generation + title pre-screen + shortlists"
 	@mkdir -p data/prod/field_packets

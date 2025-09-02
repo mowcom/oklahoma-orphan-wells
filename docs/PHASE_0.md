@@ -21,6 +21,7 @@
 
 4) Outputs
 - `data/prod/ranked_candidates.csv` (sorted by `score`)
+- Adds `rank_index` and `rank_percentile` columns and writes `top_candidates.csv` when `--top` or `--top-percent` used.
 - Top-N JSON reports in `reactivation/reports/`
 
 ## Make targets

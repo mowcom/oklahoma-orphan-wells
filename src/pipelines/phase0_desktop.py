@@ -240,6 +240,7 @@ def main():
     parser.add_argument('--end', type=str, default='2024-12-31')
     parser.add_argument('--force-refresh', action='store_true')
     parser.add_argument('--top', type=int, default=5, help='Number of top wells to generate reports for')
+    parser.add_argument('--top-percent', type=float, default=None, help='If set, select this top percent (0-100) of ranked wells for reports')
     args = parser.parse_args()
 
     out_interim = Path('data/interim'); out_interim.mkdir(parents=True, exist_ok=True)
@@ -368,19 +369,35 @@ def main():
         feats['penalty_erratic'] = (feats['cv_12m'] > 0.5).astype(float) * 0.05
         feats['score'] = (feats['score'] - feats['penalty_long_shutin'] - feats['penalty_erratic']).clip(0, 1)
 
-        # Join basic well info
+        # Join basic well and OCC info for context
+        join_cols = ['api10', 'wellId', 'wellName']
+        if 'welltype' in occ_df.columns:
+            join_cols.append('welltype')
+        if set(['latitude','longitude']).issubset(occ_df.columns):
+            join_cols.extend(['latitude','longitude'])
         if 'wellId' in resolved.columns:
-            rank = feats.merge(resolved[['api10', 'wellId', 'wellName']], on='wellId', how='left')
+            rank = feats.merge(resolved[[c for c in join_cols if c in resolved.columns]], on='wellId', how='left')
         else:
             rank = feats.copy()
-        cols = ['api10', 'wellId', 'wellName', 'q90_mcf_d', 'gas_24m', 'consistency_score', 'months_since_prod', 'dq_prod_cov', 'gas_all_time', 'nonzero_months_all', 'score']
+        cols = ['api10', 'wellId', 'wellName', 'welltype', 'latitude', 'longitude', 'q90_mcf_d', 'gas_24m', 'consistency_score', 'months_since_prod', 'dq_prod_cov', 'gas_all_time', 'nonzero_months_all', 'score']
         rank = rank[[c for c in cols if c in rank.columns]].sort_values('score', ascending=False)
+        # Add rank index and percentile columns
+        rank = rank.reset_index(drop=False).rename(columns={'index': 'rank_index'})
+        n = max(len(rank), 1)
+        rank['rank_percentile'] = (1 - (rank['rank_index'] / n)).clip(0,1)
         rank.to_csv(out_prod / 'ranked_candidates.csv', index=False)
 
         # Generate detailed JSON reports for top N
         reports_dir = Path('reactivation/reports'); reports_dir.mkdir(parents=True, exist_ok=True)
         analyzer = ReactivationAnalyzer()
-        topN = rank.head(max(1, int(args.top)))
+        # Determine selection by top or top-percent
+        if args.top_percent is not None and args.top_percent > 0:
+            k = max(1, int(len(rank) * (args.top_percent / 100.0)))
+            topN = rank.head(k)
+        else:
+            topN = rank.head(max(1, int(args.top)))
+        # Write explicit top candidates file
+        topN.to_csv(out_prod / 'top_candidates.csv', index=False)
         for _, r in topN.iterrows():
             wid = str(r.get('wellId', ''))
             api10 = str(r.get('api10', ''))
